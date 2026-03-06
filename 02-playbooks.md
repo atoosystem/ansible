@@ -36,7 +36,9 @@ tags:
   - Exécuter le playbook sur tous les nodes
   - Modifier le playbook:
     - Ajouter un play avec des paquets interdits
-    - Ajouter un play avec des utiliser interdits
+    - Ajouter un play avec des utilisateurs interdits
+    - Ajouter un play qui ajoute l'utilisateur `bob`
+    - Ajouter un play qui met à jour tous les paquets
     - Tester / Amusez-vous
 
 ## BONUS:

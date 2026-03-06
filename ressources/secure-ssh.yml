@@ -1,0 +1,83 @@
+---
+- name: Sécurisation SSH et pare-feu UFW
+  hosts: serveurs
+  become: true
+
+  tasks:
+
+    # --- SSH ---
+    - name: SSHD: Désactiver l'authentification par mot de passe
+      lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: '^#?PasswordAuthentication'
+        line: 'PasswordAuthentication no'
+        state: present
+
+    - name: Désactiver le login root en SSH
+      lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: '^#?PermitRootLogin'
+        line: 'PermitRootLogin no'
+        state: present
+
+    - name: Restreindre port 22 à l'IP du contrôleur Ansible
+      blockinfile:
+        path: /etc/ssh/sshd_config
+        marker: "# {mark} ANSIBLE MANAGED - Restriction contrôleur"
+        block: |
+          Match Address 172.16.60.101
+              PasswordAuthentication no
+              PermitRootLogin no
+
+    - name: Politique par défaut SSH (tous les autres hôtes)
+      blockinfile:
+        path: /etc/ssh/sshd_config
+        marker: "# {mark} ANSIBLE MANAGED - Politique globale"
+        block: |
+          Match All
+              PasswordAuthentication no
+              PermitRootLogin no
+              Port 2222
+
+    - name: Redémarrer le service SSH
+      service:
+        name: ssh
+        state: restarted
+
+    # --- UFW ---
+    - name: Installer UFW
+      apt:
+        name: ufw
+        state: present
+        update_cache: yes
+
+    - name: Autoriser SSH port 22 (réservé au contrôleur Ansible)
+      ufw:
+        rule: allow
+        port: '22'
+        proto: tcp
+        src: '172.16.60.X'   # ← IP du contrôleur Ansible uniquement !
+
+    - name: Autoriser SSH port 2222 (autres connexions)
+      ufw:
+        rule: allow
+        port: '2222'
+        proto: tcp        
+
+    - name: Autoriser HTTP (80)
+      ufw:
+        rule: allow
+        port: '80'
+        proto: tcp
+
+    - name: Autoriser HTTPS (443)
+      ufw:
+        rule: allow
+        port: '443'
+        proto: tcp
+
+    - name: Activer UFW avec politique par défaut DENY
+      ufw:
+        state: enabled
+        policy: deny
+        direction: incoming

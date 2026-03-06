@@ -56,17 +56,18 @@ Le cahier des charges demande :
 >  Utiliser les modules `lineinfile` et `blockinfile`, `ufw`, `service`  
 
 **Consignes:**
-  1. Tester avant d'appliquer
-  ```bash
-  ansible-playbook secure-ssh.yml --check --diff
-  ```
-
+> ⚠️ Le mode `--syntax-check` ne modifie rien. Il vérifie juste la syntaxe.  
 > ⚠️ Le mode `--check` ne modifie rien. Il simule l'exécution et affiche les changements prévus.
+> ⚠️ Le mode `--diff` ne modifie rien. Il affiche les différences.
 
-  2. Appliquer le playbook
-  ```bash
-  ansible-playbook secure-ssh.yml
-  ```
+
+1. `ansible-playbook --syntax-check secure-ssh.yml` → Vérifier la syntaxe (sans connexion)
+1. `ansible-playbook --check --diff secure-ssh.yml --limit ans-node1` → Simuler l'exécution (avec connexion)
+1. `ansible-playbook secure-ssh.yml --limit ans-node1` → Appliquer réellement **SUR** ans-node1
+1. Vérif
+
+
+
   1. Vérifier le résultat **Depuis le contrôleur Ansible :**
   ```bash
   # Vérifier que le port 2222 répond

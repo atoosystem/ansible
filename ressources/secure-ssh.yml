@@ -1,12 +1,11 @@
 ---
 - name: Sécurisation SSH et pare-feu UFW
-  hosts: serveurs
+  hosts: all
   become: true
 
   tasks:
-
     # --- SSH ---
-    - name: SSHD: Désactiver l'authentification par mot de passe
+    - name: SSH Désactiver l'authentification par mot de passe
       lineinfile:
         path: /etc/ssh/sshd_config
         regexp: '^#?PasswordAuthentication'
@@ -56,19 +55,13 @@
         rule: allow
         port: '22'
         proto: tcp
-        src: '172.16.60.X'   # ← IP du contrôleur Ansible uniquement !
+        src: '172.16.60.101'   # ← IP du contrôleur Ansible uniquement !
 
     - name: Autoriser SSH port 2222 (autres connexions)
       ufw:
         rule: allow
         port: '2222'
         proto: tcp        
-
-    - name: Autoriser HTTP (80)
-      ufw:
-        rule: allow
-        port: '80'
-        proto: tcp
 
     - name: Autoriser HTTPS (443)
       ufw:
